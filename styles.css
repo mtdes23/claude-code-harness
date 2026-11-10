@@ -1,0 +1,129 @@
+/* Custom Animations & Styles for Claude Harness Landing Page */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --color-claude: #d97706;
+  --color-claude-glow: rgba(217, 119, 6, 0.25);
+  --color-accent: #6366f1;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #080c14;
+  color: #f1f5f9;
+  overflow-x: hidden;
+}
+
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(17, 24, 39, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: rgba(26, 36, 56, 0.85);
+  border-color: rgba(217, 119, 6, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px -10px rgba(217, 119, 6, 0.15);
+}
+
+/* Glowing text and borders */
+.text-glow {
+  text-shadow: 0 0 20px rgba(217, 119, 6, 0.4);
+}
+
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.6), rgba(99, 102, 241, 0.3), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Terminal Cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+/* Badge styles */
+.badge-gold {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.1));
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  color: #fbbf24;
+}
+
+/* Pulse Glow */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+.animate-pulse-glow {
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+
+/* Tab active state */
+.tab-active {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+}
+
+/* Modal transition */
+.modal-backdrop {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease-out;
+}
+.modal-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+.modal-content {
+  transform: scale(0.95);
+  transition: all 0.25s ease-out;
+}
+.modal-backdrop.active .modal-content {
+  transform: scale(1);
+}

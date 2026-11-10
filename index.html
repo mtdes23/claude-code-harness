@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khóa Học Claude Code: Hệ Thống Tự Chạy (Skill · Hook · Agent) & Chợ Skill AI</title>
+  <meta name="description" content="Khóa học thực chiến xây dựng hệ thống tự chạy quanh Claude Code qua 5 buổi Zoom. Tích hợp kho hơn 200+ Skill và Plugin AI đóng gói sẵn cho Video, Voice, UI/UX và Automation.">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            claude: {
+              DEFAULT: '#d97706',
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#080c14] text-slate-100 antialiased selection:bg-amber-500/30 selection:text-amber-200">
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Announcement Bar -->
+  <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-indigo-600 py-2 px-4 text-center text-xs md:text-sm font-semibold text-slate-950 flex items-center justify-center gap-2 shadow-inner">
+    <span class="inline-block px-2 py-0.5 rounded bg-black/20 text-white text-[11px] font-bold">ƯU ĐÃI ĐẶC BIỆT</span>
+    <span>Khóa học thực chiến 5 buổi Zoom chỉ <strong>499.000đ</strong> • Tặng voucher 50% kho Skill AI • Đồng hành 30 ngày!</span>
+    <a href="#register-section" class="underline ml-2 hover:text-white font-bold hidden sm:inline">Đăng ký ngay &rarr;</a>
+  </div>
+
+  <!-- Main Navigation -->
+  <nav class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
+          <svg class="w-6 h-6 text-slate-950" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight text-white group-hover:text-amber-400 transition-colors">CLAUDE CODE</span>
+          <span class="text-[10px] font-mono tracking-widest text-amber-400 block -mt-1 font-bold">HỆ THỐNG TỰ CHẠY</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#about-section" class="hover:text-amber-400 transition-colors">Về Khóa Học</a>
+        <a href="#syllabus-section" class="hover:text-amber-400 transition-colors">Lộ Trình 5 Buổi</a>
+        <a href="#skills-section" class="hover:text-amber-400 transition-colors flex items-center gap-1.5">
+          <span>Chợ Skill & Plugin</span>
+          <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold">200+</span>
+        </a>
+        <a href="#pricing-section" class="hover:text-amber-400 transition-colors">Bảng Giá</a>
+        <a href="#faq-section" class="hover:text-amber-400 transition-colors">Hỏi Đáp</a>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center gap-3">
+        <!-- Cart Trigger Button -->
+        <button onclick="openCartDrawer()" class="relative p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-500/50 text-slate-300 hover:text-white transition group" title="Xem giỏ hàng">
+          <svg class="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          <span id="cartBadge" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-500 text-slate-950 text-[11px] font-black flex items-center justify-center shadow-md shadow-amber-500/50" style="display: none;">0</span>
+        </button>
+
+        <!-- CTA Button -->
+        <a href="#register-section" class="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+          <span>Đăng ký học 499k</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
+    <!-- Ambient Background Lighting -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow"></div>
+    <div class="absolute top-1/3 right-10 w-[400px] h-[300px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <!-- Left Column: Copy -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          <!-- Tag Badge -->
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-amber-500/30 text-amber-400 text-xs font-semibold shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span>Khóa Học Thực Chiến Duy Nhất · Đưa AI Thành Cỗ Máy Tự Chạy</span>
+          </div>
+
+          <!-- Main Title -->
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.12]">
+            Claude Code: <br class="hidden sm:inline">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500">
+              Hệ Thống Tự Chạy
+            </span>
+          </h1>
+
+          <!-- Pillar Badges -->
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 text-xs font-mono font-bold text-slate-300">
+            <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-300">✦ SKILL</span>
+            <span class="text-slate-600">·</span>
+            <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-indigo-300">✦ HOOK</span>
+            <span class="text-slate-600">·</span>
+            <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-emerald-300">✦ MULTI-AGENT</span>
+          </div>
+
+          <!-- Description (Core statement from user prompt) -->
+          <p class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            Khóa này <strong class="text-white font-semibold">không dừng ở chat hay mẹo viết prompt</strong>. Anh/chị mang vào một việc đang lặp lại, qua 5 buổi mình dựng cả harness quanh Claude Code để agent chạy đúng quy trình, đúng quyền hạn, có điểm kiểm soát, còn mình chỉ duyệt đầu ra.
+          </p>
+
+          <!-- Highlights List -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 max-w-xl mx-auto lg:mx-0 text-left">
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-amber-400 font-bold text-sm">5 Buổi Zoom 90'</div>
+              <div class="text-[11px] text-slate-400">Thực hành việc thật</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-emerald-400 font-bold text-sm">499.000đ Trọn Khóa</div>
+              <div class="text-[11px] text-slate-400">Đồng hành thêm 30 ngày</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 col-span-2 sm:col-span-1">
+              <div class="text-indigo-400 font-bold text-sm">Kho 200+ Skill</div>
+              <div class="text-[11px] text-slate-400">Cài đặt chỉ 1 câu lệnh</div>
+            </div>
+          </div>
+
+          <!-- CTAs -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+            <a href="#register-section" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:opacity-95 text-slate-950 font-black text-sm uppercase tracking-wider shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 transition hover:scale-[1.02] active:scale-[0.98]">
+              <span>Đăng Ký Khóa Học (499k)</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+            <a href="#skills-section" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-200 font-bold text-sm flex items-center justify-center gap-2 transition">
+              <span>Xem Kho 200+ Skill Sẵn Có</span>
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </a>
+          </div>
+
+          <p class="text-xs text-slate-500 pt-1">
+            * Không cần biết lập trình trước • Cần tài khoản Claude trả phí & Claude Code cài trên máy.
+          </p>
+        </div>
+
+        <!-- Right Column: Interactive Live Terminal Simulator -->
+        <div class="lg:col-span-5">
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl shadow-black/80 overflow-hidden relative glow-border">
+            <!-- Terminal Header -->
+            <div class="px-4 py-3 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+                <span class="ml-2 font-mono text-xs text-slate-400">claude-code-harness: ~/workspace</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">AUTONOMOUS</span>
+            </div>
+
+            <!-- Terminal Body -->
+            <div id="interactiveTerminalOutput" class="p-5 font-mono text-xs space-y-2.5 h-[340px] overflow-y-auto leading-relaxed">
+              <!-- Live output dynamically injected via JS -->
+            </div>
+
+            <!-- Terminal Footer Status -->
+            <div class="px-4 py-2.5 bg-slate-900/60 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Harness Guardrails: Active</span>
+              </div>
+              <span class="text-amber-400">Permissions: Read &middot; Write (Safe)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem & Solution Comparison -->
+  <section id="about-section" class="py-16 md:py-24 bg-slate-950/60 border-y border-slate-900 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs uppercase font-mono tracking-widest text-amber-400 font-bold mb-3">SỰ KHÁC BIỆT CỐT LÕI</h2>
+        <h3 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+          Tại sao 95% người dùng Claude chỉ mới khai thác được 10% sức mạnh?
+        </h3>
+        <p class="text-slate-400 mt-3 text-sm md:text-base leading-relaxed">
+          Đa số mọi người dùng Claude như một chatbot trả lời câu hỏi. Khi bạn biến Claude thành một hệ thống tự chạy (Harness), nó trở thành một nhân viên cấp cao làm việc 24/7 trên chính chiếc máy tính của bạn.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Claude Bình Thường -->
+        <div class="p-6 md:p-8 rounded-2xl bg-slate-900/40 border border-red-500/20 relative">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 font-bold">✕</div>
+            <div>
+              <h4 class="text-lg font-bold text-white">Claude Chat Bình Thường</h4>
+              <span class="text-xs text-red-400/80 font-mono">Thao tác thủ công, rời rạc</span>
+            </div>
+          </div>
+
+          <ul class="space-y-4 text-sm text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-red-400 shrink-0 font-bold mt-0.5">•</span>
+              <span><strong>Mất trí nhớ liên tục:</strong> Sang phiên chat mới là quên sạch dự án, phải gõ lại prompt từ đầu tốn hàng giờ.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-red-400 shrink-0 font-bold mt-0.5">•</span>
+              <span><strong>Tốn tiền Token vô ích:</strong> Không biết cách nén ngữ cảnh (/compact vs /clear), chạm ngưỡng context khiến chi phí tăng vọt.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-red-400 shrink-0 font-bold mt-0.5">•</span>
+              <span><strong>Không có điểm kiểm soát:</strong> Để AI toàn quyền thì sợ xoá nhầm code/tệp quan trọng, mà ngồi bấm duyệt từng lệnh thì mệt mỏi.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-red-400 shrink-0 font-bold mt-0.5">•</span>
+              <span><strong>Chỉ dừng lại ở câu trả lời:</strong> Không tự động hoá nối vào CapCut, Premiere, Blender hay gửi email báo cáo mỗi sáng.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Claude Code Harness Tự Chạy -->
+        <div class="p-6 md:p-8 rounded-2xl bg-gradient-to-br from-amber-500/10 via-slate-900/80 to-indigo-500/10 border border-amber-500/40 relative glow-border shadow-xl shadow-amber-500/5">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold">✓</div>
+            <div>
+              <h4 class="text-lg font-bold text-white">Claude Code: Hệ Thống Tự Chạy</h4>
+              <span class="text-xs text-amber-400 font-mono">Quy trình chuẩn hóa, có Harness bao quanh</span>
+            </div>
+          </div>
+
+          <ul class="space-y-4 text-sm text-slate-200">
+            <li class="flex items-start gap-3">
+              <span class="text-amber-400 shrink-0 font-bold mt-0.5">✓</span>
+              <span><strong>Bộ não CLAUDE.md vĩnh cửu:</strong> Nạp sẵn quy chuẩn dự án, lưu bộ nhớ lỗi thật để không bao giờ lặp lại lỗi cũ.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-amber-400 shrink-0 font-bold mt-0.5">✓</span>
+              <span><strong>Skill đóng gói 1 lệnh:</strong> Chỉ cần gọi 1 từ, Claude tự động kích hoạt chuỗi 10 tác vụ chuẩn xác 100 lần như một.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-amber-400 shrink-0 font-bold mt-0.5">✓</span>
+              <span><strong>Hook chặn rủi ro tự động:</strong> Tự động chặn các bước tốn tiền hoặc nguy hiểm, tự phục hồi ngữ cảnh sau khi nén.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-amber-400 shrink-0 font-bold mt-0.5">✓</span>
+              <span><strong>Đội Subagent soát chéo độc lập:</strong> Người làm &middot; Người soát &middot; Người phản biện, tạo ra thành phẩm hoàn chỉnh trong khi bạn ngủ.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Syllabus 5 Buổi Học (Interactive Tabs) -->
+  <section id="syllabus-section" class="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <span class="text-xs uppercase font-mono tracking-widest text-amber-400 font-bold">CHƯƠNG TRÌNH ĐÀO TẠO THỰC CHIẾN</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mt-2">
+        Chi Tiết Lộ Trình 5 Buổi Học Qua Zoom
+      </h2>
+      <p class="text-slate-400 mt-3 text-sm md:text-base leading-relaxed">
+        Mỗi buổi 90 phút. Bạn mang đúng công việc lặp lại hằng ngày của mình vào lớp. Chúng ta cùng xây dựng bộ khung tự động hóa và nghiệm thu thành phẩm ngay tại lớp.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Left Column: Day Tabs -->
+      <div class="lg:col-span-4 space-y-3" id="syllabusNav">
+        <!-- Rendered by app.js -->
+      </div>
+
+      <!-- Right Column: Active Day Content -->
+      <div class="lg:col-span-8" id="syllabusContent">
+        <!-- Rendered by app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Marketplace Section: Chợ Skill & Plugin AI -->
+  <section id="skills-section" class="py-16 md:py-24 bg-slate-950/80 border-t border-slate-900 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs uppercase font-mono tracking-widest text-amber-400 font-bold">KHO TÀI NGUYÊN SOURCE CÓ SẴN</span>
+            <span id="skillsCount" class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-mono font-bold">200+ Skills</span>
+          </div>
+          <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight mt-2">
+            Chợ Skill & Plugin AI Đóng Gói Sẵn
+          </h2>
+          <p class="text-slate-400 text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
+            Các kỹ năng chuẩn SOP đã được kiểm chứng trong các dự án thực tế (làm video CapCut, chỉnh màu điện ảnh, lồng tiếng VieNeu TTS, tạo đội ngũ Agent, thiết kế UI/UX...). Cài đặt vào máy chỉ bằng một câu lệnh!
+          </p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="w-full md:w-80">
+          <div class="relative">
+            <input type="text" id="skillSearchInput" placeholder="Tìm tên skill, từ khóa, CapCut..." class="w-full px-4 py-2.5 pl-10 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+            <svg class="w-4 h-4 text-slate-500 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar" id="categoryFilters">
+        <!-- Rendered by app.js -->
+      </div>
+
+      <!-- Skills Grid Container -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="skillsGrid">
+        <!-- Rendered by app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing & Combo Packages -->
+  <section id="pricing-section" class="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-xs uppercase font-mono tracking-widest text-amber-400 font-bold">ĐẦU TƯ HIỆU QUẢ</span>
+      <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight mt-2">
+        Học Phí & Gói Sở Hữu Trọn Bộ
+      </h2>
+      <p class="text-slate-400 mt-3 text-sm md:text-base leading-relaxed">
+        Mức học phí tối ưu nhất để bất kỳ ai cũng có thể trang bị cho mình cỗ máy tự động hóa làm việc thay mình mỗi ngày.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+      <!-- Gói 1: Lớp nhóm Zoom 5 Buổi -->
+      <div class="glass-card rounded-2xl p-6 md:p-8 flex flex-col justify-between border border-slate-800">
+        <div>
+          <div class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">LỚP NHÓM ZOOM</div>
+          <h3 class="text-2xl font-bold text-white mb-2">Khóa Học 5 Buổi Thực Chiến</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-6">Dành cho cá nhân muốn làm chủ toàn diện vòng lặp Claude Code, viết skill và xây dựng hệ thống tự chạy.</p>
+
+          <div class="mb-6 pb-6 border-b border-slate-800">
+            <span class="text-xs text-slate-500 line-through">1.200.000đ</span>
+            <div class="text-4xl font-black text-amber-400 font-mono tracking-tight mt-0.5">499.000đ</div>
+            <span class="text-xs text-slate-400 mt-1 block">Trọn khóa 5 buổi &middot; 90 phút/buổi</span>
+          </div>
+
+          <ul class="space-y-3 text-xs text-slate-300 mb-8">
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>5 buổi Zoom trực tiếp tương tác 100%</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Thực hành trên chính bài toán thật của bạn</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Tặng 3 Skill VIP khởi động tự chọn</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Đồng hành hỗ trợ giải đáp thêm 30 ngày</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Cung cấp toàn bộ video record sau mỗi buổi</span>
+            </li>
+          </ul>
+        </div>
+
+        <button onclick="addCourseToCart('group')" class="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider transition">
+          Chọn Đăng Ký Lớp Nhóm (499k)
+        </button>
+      </div>
+
+      <!-- Gói 2: Combo Toàn Năng (Khóa Học + 20 Skill VIP) -->
+      <div class="rounded-2xl p-6 md:p-8 flex flex-col justify-between bg-gradient-to-b from-amber-500/20 via-slate-900 to-indigo-500/10 border-2 border-amber-500 relative shadow-2xl shadow-amber-500/10">
+        <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg">
+          PHỔ BIẾN NHẤT 🔥
+        </span>
+
+        <div>
+          <div class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider mb-2">SIÊU COMBO VIP</div>
+          <h3 class="text-2xl font-black text-white mb-2">Khóa Học + Trọn Bộ 20 Skill VIP</h3>
+          <p class="text-xs text-amber-200/80 leading-relaxed mb-6">Trang bị tận răng: Vừa học cách làm chủ, vừa sở hữu trọn bộ 20 Skill làm video, lồng tiếng và tự động hóa mạnh nhất.</p>
+
+          <div class="mb-6 pb-6 border-b border-amber-500/30">
+            <span class="text-xs text-slate-500 line-through">2.800.000đ</span>
+            <div class="text-4xl font-black text-white font-mono tracking-tight mt-0.5">990.000đ</div>
+            <span class="text-xs text-amber-300 mt-1 block">Tiết kiệm hơn 65% so với mua lẻ</span>
+          </div>
+
+          <ul class="space-y-3 text-xs text-slate-200 mb-8">
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span><strong>Trọn gói 5 buổi học Zoom thực chiến</strong></span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Tặng Skill <strong>CapCut Draft Generator</strong> (Trị giá 299k)</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Tặng Skill <strong>VieNeu-TTS-v3-Turbo Studio 48kHz</strong> (299k)</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Tặng Skill <strong>Cinematic Color Grading & LUTs</strong> (249k)</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Tặng <strong>Agency Agents (268+ chuyên gia AI)</strong> (349k)</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Hỗ trợ cài đặt trực tiếp qua Ultraviewer/Teamviewer</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">✓</span>
+              <span>Ưu tiên đồng hành giải đáp trong <strong>60 ngày</strong></span>
+            </li>
+          </ul>
+        </div>
+
+        <button onclick="addCourseToCart('combo')" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition">
+          Sở Hữu Siêu Combo (990k)
+        </button>
+      </div>
+
+      <!-- Gói 3: Kèm Riêng 1-1 Theo Yêu Cầu -->
+      <div class="glass-card rounded-2xl p-6 md:p-8 flex flex-col justify-between border border-slate-800">
+        <div>
+          <div class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">CUSTOM COACHING</div>
+          <h3 class="text-2xl font-bold text-white mb-2">Kèm Riêng 1-1 Theo Việc Thật</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-6">Dành cho chủ doanh nghiệp, team lead hoặc cá nhân cần giải quyết gấp một bài toán tự động hóa đặc thù.</p>
+
+          <div class="mb-6 pb-6 border-b border-slate-800">
+            <span class="text-xs text-slate-500">Thiết kế riêng</span>
+            <div class="text-3xl font-black text-indigo-400 font-mono tracking-tight mt-0.5">Báo Giá Riêng</div>
+            <span class="text-xs text-slate-400 mt-1 block">Lịch học linh hoạt 1 kèm 1 qua Zoom</span>
+          </div>
+
+          <ul class="space-y-3 text-xs text-slate-300 mb-8">
+            <li class="flex items-center gap-2.5">
+              <span class="text-indigo-400 font-bold">✓</span>
+              <span>May đo lộ trình theo đúng hạ tầng công ty bạn</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-indigo-400 font-bold">✓</span>
+              <span>Viết và tối ưu hóa Skill độc quyền cho hệ thống</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-indigo-400 font-bold">✓</span>
+              <span>Tích hợp MCP Server nội bộ (Database, CRM, Slack...)</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <span class="text-indigo-400 font-bold">✓</span>
+              <span>Bảo mật cam kết dữ liệu NDA doanh nghiệp</span>
+            </li>
+          </ul>
+        </div>
+
+        <a href="https://zalo.me" target="_blank" class="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white font-bold text-xs uppercase tracking-wider text-center block transition">
+          Nhắn Zalo Nhận Tư Vấn 1-1
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Registration Form Section -->
+  <section id="register-section" class="py-16 md:py-24 bg-slate-950/70 border-t border-slate-900 relative">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="rounded-3xl p-6 sm:p-10 md:p-12 bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-slate-800 shadow-2xl relative overflow-hidden">
+        <div class="text-center max-w-xl mx-auto mb-8">
+          <span class="text-xs uppercase font-mono tracking-widest text-amber-400 font-bold">THAM GIA LỚP HỌC NGAY</span>
+          <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-2">
+            Đăng Ký Khóa Học Claude Code
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-2">
+            Điền thông tin và chia sẻ việc bạn đang muốn tự động hóa nhất để được xếp lớp phù hợp và nhận mã QR ưu đãi.
+          </p>
+        </div>
+
+        <form id="courseRegForm" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-2">Họ và tên của bạn <span class="text-amber-400">*</span></label>
+              <input type="text" id="regName" required placeholder="Nguyễn Văn A" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-2">Số điện thoại / Zalo <span class="text-amber-400">*</span></label>
+              <input type="tel" id="regPhone" required placeholder="0988 123 456" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-2">Email nhận link lớp Zoom & Tài liệu</label>
+            <input type="email" id="regEmail" placeholder="yourname@gmail.com" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+          </div>
+
+          <!-- Package Selection -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-2">Chọn gói bạn muốn tham gia:</label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 flex items-center gap-3 cursor-pointer hover:border-amber-500/50 transition">
+                <input type="radio" name="regPackage" value="group" checked class="text-amber-500 focus:ring-0">
+                <div>
+                  <div class="text-xs font-bold text-white">Lớp nhóm 5 buổi</div>
+                  <div class="text-[11px] text-amber-400 font-mono">499.000đ</div>
+                </div>
+              </label>
+
+              <label class="p-3.5 rounded-xl border border-amber-500/40 bg-amber-500/5 flex items-center gap-3 cursor-pointer hover:border-amber-500 transition">
+                <input type="radio" name="regPackage" value="combo" class="text-amber-500 focus:ring-0">
+                <div>
+                  <div class="text-xs font-bold text-white">Combo VIP 20 Skill</div>
+                  <div class="text-[11px] text-amber-400 font-mono">990.000đ</div>
+                </div>
+              </label>
+
+              <label class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 flex items-center gap-3 cursor-pointer hover:border-indigo-500/50 transition">
+                <input type="radio" name="regPackage" value="mentor" class="text-amber-500 focus:ring-0">
+                <div>
+                  <div class="text-xs font-bold text-white">Kèm riêng 1-1</div>
+                  <div class="text-[11px] text-indigo-400 font-mono">Tư vấn riêng</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Target Automation Question from prompt -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-2">
+              Anh/chị đang muốn tự động hóa việc gì nhất? Kể em nghe để em xem khóa có hợp không nha 😊
+            </label>
+            <textarea id="regTask" rows="3" placeholder="Ví dụ: Em muốn tự động hoá cắt video ngắn TikTok và chèn giọng đọc tiếng Việt; hoặc tự động soát mã nguồn và kiểm tra dữ liệu mỗi ngày..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-amber-500 transition leading-relaxed"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:opacity-95 text-slate-950 font-black text-sm uppercase tracking-wider shadow-xl shadow-amber-500/25 transition flex items-center justify-center gap-2">
+            <span>Tiến Hành Đăng Ký & Quét Mã QR Học Phí</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq-section" class="py-16 md:py-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <span class="text-xs uppercase font-mono tracking-widest text-amber-400 font-bold">GIẢI ĐÁP THẮC MẮC</span>
+      <h2 class="text-3xl font-black text-white tracking-tight mt-2">Câu Hỏi Thường Gặp</h2>
+    </div>
+
+    <div class="space-y-4">
+      <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+        <h4 class="text-sm font-bold text-white mb-2">Tôi không biết lập trình (không biết code) thì có học được không?</h4>
+        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+          Hoàn toàn học được! Khóa học tập trung vào tư duy thiết kế hệ thống (Harness), cách viết phiếu giao việc 5 ý, tạo file SKILL.md bằng ngôn ngữ tự nhiên và thiết lập phân quyền an toàn. Claude Code sẽ là người viết code, bạn là người kiến trúc và duyệt đầu ra.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+        <h4 class="text-sm font-bold text-white mb-2">Tôi cần chuẩn bị những gì trước khi vào buổi học đầu tiên?</h4>
+        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+          Bạn chỉ cần chuẩn bị một máy tính (Windows hoặc macOS), một tài khoản Claude trả phí (gói Pro hoặc Team) và đã cài đặt Claude Code trên máy. Giảng viên sẽ gửi video hướng dẫn cài đặt từng bước trước khi lớp khai giảng.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+        <h4 class="text-sm font-bold text-white mb-2">Nếu tôi bận một buổi thì có video xem lại (record) không?</h4>
+        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+          Có. Toàn bộ 5 buổi học Zoom đều được ghi hình chất lượng cao và upload lên hệ thống tài liệu nội bộ trong vòng 2 giờ sau khi kết thúc buổi. Bạn có thể xem lại vĩnh viễn và đặt câu hỏi trong nhóm hỗ trợ bất kỳ lúc nào.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+        <h4 class="text-sm font-bold text-white mb-2">Các Skill mua từ Store cài đặt vào máy như thế nào?</h4>
+        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+          Mỗi skill được đóng gói hoàn chỉnh gồm file cấu hình SKILL.md, script Python/Node và hướng dẫn cụ thể. Bạn chỉ cần copy vào thư mục `.gemini/config/skills` hoặc thư mục dự án Claude Code là Claude sẽ tự động nhận diện và kích hoạt ngay.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-slate-900 py-12 text-slate-500 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-black text-sm">C</div>
+        <div>
+          <div class="font-bold text-slate-200">Claude Code Harness & AI Skills</div>
+          <div class="text-[11px] text-slate-600">Đào tạo tự động hóa & Cung cấp tài nguyên AI thực chiến</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <a href="#about-section" class="hover:text-amber-400 transition">Khóa học</a>
+        <a href="#skills-section" class="hover:text-amber-400 transition">Kho Skill</a>
+        <a href="#pricing-section" class="hover:text-amber-400 transition">Học phí</a>
+        <a href="https://zalo.me" target="_blank" class="text-amber-400 font-bold hover:underline">Hỗ trợ Zalo 24/7</a>
+      </div>
+
+      <div>&copy; 2026 Claude Code Harness. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- Slide-in Cart Drawer -->
+  <div id="cartDrawer" class="fixed inset-0 z-[999] pointer-events-none transition-all duration-300">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-0 pointer-events-auto" onclick="closeCartDrawer()"></div>
+    <div class="absolute top-0 right-0 bottom-0 w-full max-w-md bg-slate-950 border-l border-slate-800 p-6 flex flex-col justify-between shadow-2xl pointer-events-auto transform translate-x-full transition-transform duration-300">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <h3 class="font-bold text-white text-base">Giỏ hàng của bạn</h3>
+            <span id="cartItemCount" class="text-xs text-slate-400">0 món</span>
+          </div>
+          <button onclick="closeCartDrawer()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-900">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Items Container -->
+        <div id="cartItemsList" class="py-4 space-y-2.5 max-h-[45vh] overflow-y-auto">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Cart Summary & Checkout -->
+      <div id="cartSummary" class="pt-4 border-t border-slate-800 space-y-3">
+        <!-- Coupon Form -->
+        <div class="flex gap-2">
+          <input type="text" id="couponInput" placeholder="Mã giảm giá (ví dụ: HOCVIEN50)" class="flex-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase focus:outline-none focus:border-amber-500 font-mono">
+          <button onclick="applyCoupon()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition">Áp dụng</button>
+        </div>
+
+        <div class="space-y-1.5 text-xs text-slate-400 font-mono">
+          <div class="flex justify-between">
+            <span>Tạm tính:</span>
+            <span id="cartSubtotal" class="text-slate-200 font-bold">0đ</span>
+          </div>
+          <div class="flex justify-between text-emerald-400">
+            <span>Giảm giá:</span>
+            <span id="cartDiscount">0đ</span>
+          </div>
+          <div class="flex justify-between text-sm text-white font-extrabold pt-2 border-t border-slate-800">
+            <span>Tổng thanh toán:</span>
+            <span id="cartTotal" class="text-amber-400 text-base">0đ</span>
+          </div>
+        </div>
+
+        <button onclick="proceedToCheckout()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:opacity-95 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition">
+          Thanh Toán & Quét Mã QR VietQR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill Detail Modal -->
+  <div id="skillDetailModal" class="modal-backdrop fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+    <div class="modal-content w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto" id="skillModalBody">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- VietQR Payment Modal -->
+  <div id="paymentModal" class="modal-backdrop fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="modal-content w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto" id="paymentModalBody">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <style>
+    #cartDrawer.active {
+      pointer-events: auto;
+    }
+    #cartDrawer.active > div:first-child {
+      opacity: 1;
+    }
+    #cartDrawer.active > div:last-child {
+      transform: translateX(0);
+    }
+  </style>
+
+  <!-- Scripts -->
+  <script src="skillsData.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
