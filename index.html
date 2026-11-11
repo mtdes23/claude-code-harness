@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Khóa Học Claude Code: Hệ Thống Tự Chạy (Skill · Hook · Agent) & Chợ Skill AI</title>
-  <meta name="description" content="Khóa học thực chiến xây dựng hệ thống tự chạy quanh Claude Code qua 5 buổi Zoom. Tích hợp kho hơn 200+ Skill và Plugin AI đóng gói sẵn cho Video, Voice, UI/UX và Automation.">
+  <meta name="description" content="Khóa học thực chiến xây dựng hệ thống tự chạy quanh Claude Code qua 5 buổi Zoom. Tích hợp kho hơn 200+ Skill và Plugin AI đóng gói sẵn cho Video, Voice, UI/UX và Automation. Chuyển khoản tiện lợi qua MoMo 0336779222.">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -26,6 +26,11 @@
               700: '#b45309',
               800: '#92400e',
               900: '#78350f',
+            },
+            momo: {
+              DEFAULT: '#d82d8b',
+              light: '#f73b9e',
+              dark: '#a50064'
             }
           }
         }
@@ -36,14 +41,14 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-[#080c14] text-slate-100 antialiased selection:bg-amber-500/30 selection:text-amber-200">
+<body class="bg-[#080c14] text-slate-100 antialiased selection:bg-amber-500/30 selection:text-amber-200 pb-16 md:pb-0">
 
   <!-- Toast Container -->
   <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
   <!-- Announcement Bar -->
-  <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-indigo-600 py-2 px-4 text-center text-xs md:text-sm font-semibold text-slate-950 flex items-center justify-center gap-2 shadow-inner">
-    <span class="inline-block px-2 py-0.5 rounded bg-black/20 text-white text-[11px] font-bold">ƯU ĐÃI ĐẶC BIỆT</span>
+  <div class="bg-gradient-to-r from-pink-600 via-amber-500 to-indigo-600 py-2 px-4 text-center text-xs md:text-sm font-semibold text-slate-950 flex flex-wrap items-center justify-center gap-2 shadow-inner">
+    <span class="inline-block px-2 py-0.5 rounded bg-black/20 text-white text-[11px] font-bold">MOMO: 0336779222</span>
     <span>Khóa học thực chiến 5 buổi Zoom chỉ <strong>499.000đ</strong> • Tặng voucher 50% kho Skill AI • Đồng hành 30 ngày!</span>
     <a href="#register-section" class="underline ml-2 hover:text-white font-bold hidden sm:inline">Đăng ký ngay &rarr;</a>
   </div>
@@ -77,7 +82,13 @@
       </div>
 
       <!-- Header Actions -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5">
+        <!-- Quick MoMo Button -->
+        <button onclick="openPaymentModal(499000, 'CLAUDE 9222', 'momo')" class="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 text-pink-300 hover:text-pink-200 text-xs font-bold transition" title="Thanh toán trực tiếp qua MoMo">
+          <span class="w-3.5 h-3.5 rounded-full bg-pink-500 text-white flex items-center justify-center text-[9px] font-black">M</span>
+          <span>MoMo: 0336779222</span>
+        </button>
+
         <!-- Cart Trigger Button -->
         <button onclick="openCartDrawer()" class="relative p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-500/50 text-slate-300 hover:text-white transition group" title="Xem giỏ hàng">
           <svg class="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +110,7 @@
   <section class="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
     <!-- Ambient Background Lighting -->
     <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow"></div>
-    <div class="absolute top-1/3 right-10 w-[400px] h-[300px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute top-1/3 right-10 w-[400px] h-[300px] bg-pink-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -128,7 +139,7 @@
             <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-emerald-300">✦ MULTI-AGENT</span>
           </div>
 
-          <!-- Description (Core statement from user prompt) -->
+          <!-- Description -->
           <p class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
             Khóa này <strong class="text-white font-semibold">không dừng ở chat hay mẹo viết prompt</strong>. Anh/chị mang vào một việc đang lặp lại, qua 5 buổi mình dựng cả harness quanh Claude Code để agent chạy đúng quy trình, đúng quyền hạn, có điểm kiểm soát, còn mình chỉ duyệt đầu ra.
           </p>
@@ -140,8 +151,8 @@
               <div class="text-[11px] text-slate-400">Thực hành việc thật</div>
             </div>
             <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-              <div class="text-emerald-400 font-bold text-sm">499.000đ Trọn Khóa</div>
-              <div class="text-[11px] text-slate-400">Đồng hành thêm 30 ngày</div>
+              <div class="text-pink-400 font-bold text-sm">MoMo 0336779222</div>
+              <div class="text-[11px] text-slate-400">Học phí chỉ 499.000đ</div>
             </div>
             <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 col-span-2 sm:col-span-1">
               <div class="text-indigo-400 font-bold text-sm">Kho 200+ Skill</div>
@@ -155,10 +166,10 @@
               <span>Đăng Ký Khóa Học (499k)</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </a>
-            <a href="#skills-section" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-200 font-bold text-sm flex items-center justify-center gap-2 transition">
-              <span>Xem Kho 200+ Skill Sẵn Có</span>
-              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-            </a>
+            <button onclick="openPaymentModal(499000, 'CLAUDE 9222', 'momo')" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-pink-600/20 hover:bg-pink-600/30 border border-pink-500/40 text-pink-300 font-bold text-sm flex items-center justify-center gap-2 transition">
+              <span class="w-4 h-4 rounded-full bg-pink-500 text-white flex items-center justify-center text-[10px] font-black">M</span>
+              <span>Chuyển Khoản MoMo 0336779222</span>
+            </button>
           </div>
 
           <p class="text-xs text-slate-500 pt-1">
@@ -166,7 +177,7 @@
           </p>
         </div>
 
-        <!-- Right Column: Interactive Live Terminal Simulator -->
+        <!-- Right Column: Interactive Live Terminal Simulator with Interactive Chips -->
         <div class="lg:col-span-5">
           <div class="rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl shadow-black/80 overflow-hidden relative glow-border">
             <!-- Terminal Header -->
@@ -177,11 +188,28 @@
                 <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
                 <span class="ml-2 font-mono text-xs text-slate-400">claude-code-harness: ~/workspace</span>
               </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">AUTONOMOUS</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">INTERACTIVE</span>
+            </div>
+
+            <!-- Interactive Clickable Action Chips -->
+            <div class="px-3.5 py-2.5 bg-slate-900/60 border-b border-slate-800/80 flex flex-wrap items-center gap-1.5 text-xs">
+              <span class="text-slate-400 font-mono text-[10px] uppercase font-bold mr-1">Bấm thử lệnh:</span>
+              <button onclick="runTerminalScenario('capcut')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-amber-500/20 hover:text-amber-300 hover:border-amber-500/40 text-slate-300 font-mono text-[11px] border border-slate-700/60 transition flex items-center gap-1">
+                <span>🎬 CapCut Auto</span>
+              </button>
+              <button onclick="runTerminalScenario('tts')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-pink-500/20 hover:text-pink-300 hover:border-pink-500/40 text-slate-300 font-mono text-[11px] border border-slate-700/60 transition flex items-center gap-1">
+                <span>🎙️ VieNeu Voice</span>
+              </button>
+              <button onclick="runTerminalScenario('hook')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/40 text-slate-300 font-mono text-[11px] border border-slate-700/60 transition flex items-center gap-1">
+                <span>🛡️ Chặn Lỗi</span>
+              </button>
+              <button onclick="runTerminalScenario('agent')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-indigo-500/20 hover:text-indigo-300 hover:border-indigo-500/40 text-slate-300 font-mono text-[11px] border border-slate-700/60 transition flex items-center gap-1">
+                <span>🤖 Đội 3 Agent</span>
+              </button>
             </div>
 
             <!-- Terminal Body -->
-            <div id="interactiveTerminalOutput" class="p-5 font-mono text-xs space-y-2.5 h-[340px] overflow-y-auto leading-relaxed">
+            <div id="interactiveTerminalOutput" class="p-5 font-mono text-xs space-y-2.5 h-[300px] overflow-y-auto leading-relaxed">
               <!-- Live output dynamically injected via JS -->
             </div>
 
@@ -347,7 +375,7 @@
         Học Phí & Gói Sở Hữu Trọn Bộ
       </h2>
       <p class="text-slate-400 mt-3 text-sm md:text-base leading-relaxed">
-        Mức học phí tối ưu nhất để bất kỳ ai cũng có thể trang bị cho mình cỗ máy tự động hóa làm việc thay mình mỗi ngày.
+        Chuyển khoản dễ dàng qua <strong class="text-pink-400">Ví MoMo 0336779222</strong> hoặc Ngân Hàng. Nhận ngay quyền vào lớp Zoom & đồng hành 30 ngày.
       </p>
     </div>
 
@@ -384,7 +412,7 @@
             </li>
             <li class="flex items-center gap-2.5">
               <span class="text-amber-400 font-bold">✓</span>
-              <span>Cung cấp toàn bộ video record sau mỗi buổi</span>
+              <span>Thanh toán tiện qua MoMo: <strong>0336779222</strong></span>
             </li>
           </ul>
         </div>
@@ -395,7 +423,7 @@
       </div>
 
       <!-- Gói 2: Combo Toàn Năng (Khóa Học + 20 Skill VIP) -->
-      <div class="rounded-2xl p-6 md:p-8 flex flex-col justify-between bg-gradient-to-b from-amber-500/20 via-slate-900 to-indigo-500/10 border-2 border-amber-500 relative shadow-2xl shadow-amber-500/10">
+      <div class="rounded-2xl p-6 md:p-8 flex flex-col justify-between bg-gradient-to-b from-amber-500/20 via-slate-900 to-pink-500/10 border-2 border-amber-500 relative shadow-2xl shadow-amber-500/10">
         <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg">
           PHỔ BIẾN NHẤT 🔥
         </span>
@@ -481,7 +509,7 @@
           </ul>
         </div>
 
-        <a href="https://zalo.me" target="_blank" class="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white font-bold text-xs uppercase tracking-wider text-center block transition">
+        <a href="https://zalo.me/0336779222" target="_blank" class="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white font-bold text-xs uppercase tracking-wider text-center block transition">
           Nhắn Zalo Nhận Tư Vấn 1-1
         </a>
       </div>
@@ -498,7 +526,7 @@
             Đăng Ký Khóa Học Claude Code
           </h2>
           <p class="text-xs sm:text-sm text-slate-400 mt-2">
-            Điền thông tin và chia sẻ việc bạn đang muốn tự động hóa nhất để được xếp lớp phù hợp và nhận mã QR ưu đãi.
+            Điền thông tin và chia sẻ việc bạn đang muốn tự động hóa nhất để được xếp lớp phù hợp và quét mã chuyển khoản <strong class="text-pink-400">MoMo 0336779222</strong>.
           </p>
         </div>
 
@@ -557,8 +585,8 @@
             <textarea id="regTask" rows="3" placeholder="Ví dụ: Em muốn tự động hoá cắt video ngắn TikTok và chèn giọng đọc tiếng Việt; hoặc tự động soát mã nguồn và kiểm tra dữ liệu mỗi ngày..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-amber-500 transition leading-relaxed"></textarea>
           </div>
 
-          <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:opacity-95 text-slate-950 font-black text-sm uppercase tracking-wider shadow-xl shadow-amber-500/25 transition flex items-center justify-center gap-2">
-            <span>Tiến Hành Đăng Ký & Quét Mã QR Học Phí</span>
+          <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-600 via-amber-500 to-amber-400 hover:opacity-95 text-slate-950 font-black text-sm uppercase tracking-wider shadow-xl shadow-amber-500/25 transition flex items-center justify-center gap-2">
+            <span>Tiến Hành Đăng Ký & Nhận Mã MoMo 0336779222</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
         </form>
@@ -578,6 +606,13 @@
         <h4 class="text-sm font-bold text-white mb-2">Tôi không biết lập trình (không biết code) thì có học được không?</h4>
         <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
           Hoàn toàn học được! Khóa học tập trung vào tư duy thiết kế hệ thống (Harness), cách viết phiếu giao việc 5 ý, tạo file SKILL.md bằng ngôn ngữ tự nhiên và thiết lập phân quyền an toàn. Claude Code sẽ là người viết code, bạn là người kiến trúc và duyệt đầu ra.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+        <h4 class="text-sm font-bold text-white mb-2">Thanh toán qua hình thức nào?</h4>
+        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+          Bạn có thể chuyển khoản trực tiếp qua <strong class="text-pink-400">Ví MoMo: 0336779222 (THẠCH MINH TRÍ)</strong> hoặc chuyển khoản qua tài khoản ngân hàng bằng mã VietQR tự động. Sau khi chuyển, bạn chỉ cần bấm nút "Tôi đã chuyển khoản" là hệ thống xác nhận và gửi link nhóm lớp.
         </p>
       </div>
 
@@ -611,7 +646,7 @@
         <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-black text-sm">C</div>
         <div>
           <div class="font-bold text-slate-200">Claude Code Harness & AI Skills</div>
-          <div class="text-[11px] text-slate-600">Đào tạo tự động hóa & Cung cấp tài nguyên AI thực chiến</div>
+          <div class="text-[11px] text-slate-600">MoMo: 0336779222 (Thạch Minh Trí) • Zalo: 0336779222</div>
         </div>
       </div>
 
@@ -619,12 +654,31 @@
         <a href="#about-section" class="hover:text-amber-400 transition">Khóa học</a>
         <a href="#skills-section" class="hover:text-amber-400 transition">Kho Skill</a>
         <a href="#pricing-section" class="hover:text-amber-400 transition">Học phí</a>
-        <a href="https://zalo.me" target="_blank" class="text-amber-400 font-bold hover:underline">Hỗ trợ Zalo 24/7</a>
+        <a href="https://zalo.me/0336779222" target="_blank" class="text-amber-400 font-bold hover:underline">Zalo: 0336779222</a>
       </div>
 
       <div>&copy; 2026 Claude Code Harness. All rights reserved.</div>
     </div>
   </footer>
+
+  <!-- Floating Sticky Action Bar (For Quick Interaction) -->
+  <div class="fixed bottom-5 right-5 z-[990] flex items-center gap-2.5">
+    <!-- MoMo Quick Pay Button -->
+    <button onclick="openPaymentModal(499000, 'CLAUDE 9222', 'momo')" class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 text-white font-bold text-xs shadow-xl shadow-pink-600/30 transition hover:scale-105 active:scale-95 border border-pink-400/40">
+      <span class="w-4 h-4 rounded-full bg-white text-pink-600 flex items-center justify-center text-[10px] font-black">M</span>
+      <span>MoMo: 0336779222</span>
+    </button>
+
+    <!-- Zalo Chat Button -->
+    <a href="https://zalo.me/0336779222" target="_blank" class="flex items-center justify-center w-11 h-11 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-600/30 transition hover:scale-105 active:scale-95" title="Nhắn Zalo 0336779222">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.34 5L2 22l5.24-1.31C8.68 21.49 10.29 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+    </a>
+
+    <!-- Cart Button -->
+    <button onclick="openCartDrawer()" class="flex items-center justify-center w-11 h-11 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xl shadow-amber-500/30 transition hover:scale-105 active:scale-95" title="Mở giỏ hàng">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+    </button>
+  </div>
 
   <!-- Slide-in Cart Drawer -->
   <div id="cartDrawer" class="fixed inset-0 z-[999] pointer-events-none transition-all duration-300">
@@ -671,8 +725,10 @@
           </div>
         </div>
 
-        <button onclick="proceedToCheckout()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:opacity-95 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition">
-          Thanh Toán & Quét Mã QR VietQR
+        <!-- Direct MoMo Button from Cart -->
+        <button onclick="proceedToCheckout()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-pink-600 via-pink-500 to-amber-500 hover:opacity-95 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-pink-500/25 transition flex items-center justify-center gap-2">
+          <span class="w-4 h-4 rounded-full bg-white text-pink-600 flex items-center justify-center text-[10px] font-black">M</span>
+          <span>Thanh Toán MoMo 0336779222 / Ngân Hàng</span>
         </button>
       </div>
     </div>
@@ -685,7 +741,7 @@
     </div>
   </div>
 
-  <!-- VietQR Payment Modal -->
+  <!-- Payment Modal (MoMo & VietQR) -->
   <div id="paymentModal" class="modal-backdrop fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
     <div class="modal-content w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto" id="paymentModalBody">
       <!-- Populated by JS -->

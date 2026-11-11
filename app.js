@@ -1,11 +1,17 @@
 // Claude Code Harness - App Logic
 // Data: window.SKILLS_CATALOG
 
+const MOMO_CONFIG = {
+  phone: '0336779222',
+  name: 'THẠCH MINH TRÍ',
+  deepLink: 'https://me.momo.vn/0336779222'
+};
+
 const BANK_CONFIG = {
-  bankId: 'MB', // MBBank
-  bankName: 'MB Bank (Quân Đội)',
-  accountNo: '0988666888', // Số tài khoản mẫu dễ nhớ (người dùng có thể sửa)
-  accountName: 'CLAUDE CODE HARNESS'
+  bankId: 'MB',
+  bankName: 'MB Bank (Ngân Hàng Quân Đội)',
+  accountNo: '0336779222',
+  accountName: 'THACH MINH TRI'
 };
 
 const SYLLABUS_DATA = [
@@ -179,7 +185,46 @@ let state = {
   cart: [],
   discountCode: '',
   discountPercent: 0,
-  activeSkillModal: null
+  activeSkillModal: null,
+  activePaymentTab: 'momo' // 'momo' or 'bank'
+};
+
+// Terminal Scenarios
+let terminalTimer = null;
+const TERMINAL_SCENARIOS = {
+  capcut: [
+    { text: '$ claude "Dựng video TikTok xe cổ tự động, cắt nhịp beat và tạo draft CapCut"', color: 'text-amber-400' },
+    { text: '→ Nạp cấu hình CLAUDE.md: Dự án Video ngắn TikTok 9:16', color: 'text-slate-400' },
+    { text: '✓ Hook [pre_tool_call]: Kiểm tra quyền ghi đè thư mục CapCut... HỢP LỆ', color: 'text-emerald-400' },
+    { text: '⚡ Kích hoạt Skill: capcut-draft-generator + cinematic-color-grading', color: 'text-indigo-400' },
+    { text: '🔍 Phân tích âm thanh: Bắt nhịp beat tại 2.4s, 5.8s, 9.1s', color: 'text-cyan-400' },
+    { text: '🤖 Subagent [Reviewer]: Kiểm tra title-safe 9:16 không bị che icon... ĐẠT', color: 'text-emerald-400' },
+    { text: '★ HOÀN THÀNH: File draft_content.json đã xuất thẳng vào CapCut Desktop!', color: 'text-amber-300 font-bold' }
+  ],
+  tts: [
+    { text: '$ claude "Lồng tiếng kịch bản bằng VieNeu-TTS-v3-Turbo Studio 48kHz"', color: 'text-amber-400' },
+    { text: '→ Nạp tệp transcript.txt và phân đoạn câu thoại theo ngữ cảnh...', color: 'text-slate-400' },
+    { text: '🎙️ vieNeu-tts: Khởi tạo mô hình giọng đọc Bắc tự nhiên 48kHz', color: 'text-cyan-400' },
+    { text: '🎭 Nhận diện biểu cảm: Chèn tag [cười] ở câu mở đầu, [thở dài] ở câu chốt', color: 'text-pink-400' },
+    { text: '🔊 Audio Master: Chuẩn hoá âm lượng theo tiêu chuẩn phát thanh -14 LUFS', color: 'text-indigo-400' },
+    { text: '★ HOÀN THÀNH: File voiceover_master.wav chất lượng phòng thu đã sẵn sàng!', color: 'text-amber-300 font-bold' }
+  ],
+  hook: [
+    { text: '$ claude "Quét 1.000 file mã nguồn và gọi API dịch tự động"', color: 'text-amber-400' },
+    { text: '→ Claude chuẩn bị gọi tool execute_external_api...', color: 'text-slate-400' },
+    { text: '🛡️ HOOK CHẶN RỦI RO [pre_tool_call]: Phát hiện bước này tốn > $1.50!', color: 'text-red-400 font-bold' },
+    { text: '⚠️ [GUARDRAIL]: Tạm dừng. Yêu cầu người dùng xác nhận trước khi tiếp tục.', color: 'text-amber-300' },
+    { text: '✓ Tối ưu hóa: Đổi sang mô hình Claude Haiku tiết kiệm 90% chi phí token.', color: 'text-emerald-400' },
+    { text: '★ HOÀN THÀNH: Hoàn tất tác vụ an toàn với ngân sách chỉ 0.08$!', color: 'text-emerald-300 font-bold' }
+  ],
+  agent: [
+    { text: '$ claude "Khởi động đội 3 Subagent kiểm thử dự án và viết báo cáo"', color: 'text-amber-400' },
+    { text: '→ WorkerAgent: Chạy kiểm thử tự động toàn bộ 48 test cases...', color: 'text-slate-400' },
+    { text: '→ ReviewerAgent: Soát lỗi logic, phát hiện 1 trường hợp biên chưa bắt lỗi', color: 'text-cyan-400' },
+    { text: '→ CriticAgent: Phản biện kiến trúc, đề xuất refactor hàm xử lý dữ liệu', color: 'text-indigo-400' },
+    { text: '🤖 Kết hợp MCP Gmail: Soạn sẵn email báo cáo gửi Giám Đốc vào mục Drafts', color: 'text-emerald-400' },
+    { text: '★ HOÀN THÀNH: Đội ngũ Agent tự động hoàn tất lúc 3:00 AM!', color: 'text-amber-300 font-bold' }
+  ]
 };
 
 // Initialize App
@@ -189,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSkills();
   initCategoryFilters();
   initSearch();
-  initInteractiveTerminal();
+  runTerminalScenario('capcut');
   initRegistrationForm();
   updateCartUI();
 
@@ -216,7 +261,6 @@ function showToast(message, type = 'success') {
   toast.innerHTML = `<span class="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold">${icon}</span><span>${message}</span>`;
   container.appendChild(toast);
 
-  // Trigger animation
   requestAnimationFrame(() => {
     toast.classList.remove('translate-y-4', 'opacity-0');
   });
@@ -225,6 +269,38 @@ function showToast(message, type = 'success') {
     toast.classList.add('opacity-0', 'translate-y-2');
     setTimeout(() => toast.remove(), 300);
   }, 3500);
+}
+
+// Interactive Terminal Simulator with Scenarios
+function runTerminalScenario(scenarioKey) {
+  const terminalEl = document.getElementById('interactiveTerminalOutput');
+  if (!terminalEl) return;
+
+  if (terminalTimer) clearTimeout(terminalTimer);
+  terminalEl.innerHTML = '';
+
+  const lines = TERMINAL_SCENARIOS[scenarioKey] || TERMINAL_SCENARIOS.capcut;
+  let idx = 0;
+
+  function printLine() {
+    if (idx < lines.length) {
+      const item = lines[idx];
+      const p = document.createElement('div');
+      p.className = `font-mono text-xs ${item.color} transition-all duration-300 opacity-0 transform translate-x-2`;
+      p.innerText = item.text;
+      terminalEl.appendChild(p);
+
+      requestAnimationFrame(() => {
+        p.classList.remove('opacity-0', 'translate-x-2');
+      });
+
+      terminalEl.scrollTop = terminalEl.scrollHeight;
+      idx++;
+      terminalTimer = setTimeout(printLine, 750);
+    }
+  }
+
+  printLine();
 }
 
 // Render Syllabus
@@ -286,7 +362,7 @@ function renderSyllabus() {
         <div class="p-2.5 rounded-lg bg-amber-500/20 text-amber-400 shrink-0 mt-0.5">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <div>
+        <div class="flex-1">
           <div class="text-xs font-bold uppercase tracking-wider text-amber-400">Thành phẩm thu về sau buổi học</div>
           <div class="text-sm md:text-base font-semibold text-white mt-0.5">${curr.deliverable}</div>
         </div>
@@ -294,9 +370,11 @@ function renderSyllabus() {
 
       <!-- Code / Prompt Preview -->
       <div class="rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
-        <div class="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono">
+        <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono">
           <span>Tài liệu mẫu thực hành: Buổi ${curr.day}</span>
-          <span class="text-amber-400/80">Claude Code Harness</span>
+          <button onclick="copyText(\`${curr.codeSample.replace(/`/g, '\\`')}\`, 'Đã copy tài liệu mẫu Buổi ${curr.day}!')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 text-[11px] font-sans font-bold transition">
+            Sao chép code mẫu
+          </button>
         </div>
         <pre class="p-4 text-xs font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>${escapeHtml(curr.codeSample)}</code></pre>
       </div>
@@ -317,7 +395,6 @@ function renderSkills() {
 
   const catalog = window.SKILLS_CATALOG || [];
   
-  // Filter by category & search
   let filtered = catalog.filter((skill) => {
     const matchCat = state.activeCategory === 'all' || skill.category === state.activeCategory;
     const q = state.searchQuery.toLowerCase();
@@ -516,7 +593,7 @@ function openSkillModal(skillId) {
         <h4 class="text-sm font-semibold text-slate-300 mb-2">Cách gọi trong Claude Code hoặc Antigravity:</h4>
         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-amber-300 flex items-center justify-between">
           <code>claude "Sử dụng skill ${skill.name} để hoàn thành tác vụ này..."</code>
-          <button onclick="copyText('claude &quot;Sử dụng skill ${skill.name} để hoàn thành tác vụ này...&quot;')" class="text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800 text-[11px]">Copy</button>
+          <button onclick="copyText('claude &quot;Sử dụng skill ${skill.name} để hoàn thành tác vụ này...&quot;')" class="text-slate-400 hover:text-white px-2.5 py-1 rounded bg-slate-800 text-[11px] font-bold">Copy</button>
         </div>
       </div>
 
@@ -625,7 +702,6 @@ function addCourseToCart(type = 'group') {
     };
   }
 
-  // Remove existing course item if any, then add
   state.cart = state.cart.filter((i) => !i.id.startsWith('course-'));
   state.cart.push(item);
   saveCart();
@@ -736,7 +812,7 @@ function applyCoupon() {
   updateCartUI();
 }
 
-// Checkout & VietQR Generator
+// Payment Modal Controller (MOMO 0336779222 & Bank Transfer)
 function proceedToCheckout() {
   if (state.cart.length === 0) {
     showToast('Giỏ hàng trống!', 'error');
@@ -748,95 +824,182 @@ function proceedToCheckout() {
   const cleanPhone = phone.replace(/[^0-9]/g, '').slice(-4) || 'VIP';
   const memo = `CLAUDE ${cleanPhone}`;
 
-  openPaymentModal(total, memo);
+  openPaymentModal(total, memo, 'momo');
 }
 
-function openPaymentModal(amount, memo) {
+function openPaymentModal(amount, memo, initialTab = 'momo') {
+  state.activePaymentTab = initialTab;
   const modal = document.getElementById('paymentModal');
   const body = document.getElementById('paymentModalBody');
   if (!modal || !body) return;
 
-  // VietQR API
-  const qrUrl = `https://img.vietqr.io/image/${BANK_CONFIG.bankId}-${BANK_CONFIG.accountNo}-compact2.jpg?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANK_CONFIG.accountName)}`;
+  renderPaymentModalContent(amount, memo);
+  modal.classList.add('active');
+}
+
+function renderPaymentModalContent(amount, memo) {
+  const body = document.getElementById('paymentModalBody');
+  if (!body) return;
+
+  // Momo Transfer QR string (Supported by Momo Scanner)
+  const momoPayload = `2|99|${MOMO_CONFIG.phone}|${MOMO_CONFIG.name}||0|0|${amount}|${memo}|transfer_myqr`;
+  const momoQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(momoPayload)}`;
+  
+  // VietQR NAPAS for Bank App
+  const bankQrUrl = `https://img.vietqr.io/image/${BANK_CONFIG.bankId}-${BANK_CONFIG.accountNo}-compact2.jpg?amount=${amount}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANK_CONFIG.accountName)}`;
+
+  const isMomo = state.activePaymentTab === 'momo';
 
   body.innerHTML = `
     <div class="p-6 md:p-8">
+      <!-- Modal Header -->
       <div class="flex items-start justify-between mb-4">
         <div>
-          <span class="text-xs uppercase font-mono text-amber-400 font-bold tracking-wider">CỔNG THANH TOÁN VIETQR TỰ ĐỘNG</span>
-          <h3 class="text-xl md:text-2xl font-black text-white">Quét Mã QR Chuyển Khoản</h3>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
+              isMomo ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+            }">
+              ${isMomo ? 'CỔNG THANH TOÁN MOMO 0336779222' : 'CỔNG THANH TOÁN VIETQR NGÂN HÀNG'}
+            </span>
+          </div>
+          <h3 class="text-xl md:text-2xl font-black text-white mt-1">Quét Mã QR Chuyển Khoản</h3>
         </div>
         <button onclick="closePaymentModal()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
+      <!-- Payment Method Switcher Tabs -->
+      <div class="grid grid-cols-2 gap-2 p-1.5 rounded-xl bg-slate-950 border border-slate-800 mb-6">
+        <button onclick="switchPaymentTab('momo', ${amount}, '${memo}')" class="py-2.5 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition ${
+          isMomo 
+            ? 'bg-gradient-to-r from-pink-600 to-pink-500 text-white shadow-lg shadow-pink-500/20' 
+            : 'text-slate-400 hover:text-white'
+        }">
+          <span class="w-3.5 h-3.5 rounded-full bg-white text-pink-600 flex items-center justify-center text-[10px] font-black">M</span>
+          <span>Ví MoMo (0336779222)</span>
+        </button>
+        <button onclick="switchPaymentTab('bank', ${amount}, '${memo}')" class="py-2.5 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition ${
+          !isMomo 
+            ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg shadow-amber-500/20' 
+            : 'text-slate-400 hover:text-white'
+        }">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          <span>Chuyển Khoản Ngân Hàng</span>
+        </button>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <!-- QR Code Image -->
-        <div class="flex flex-col items-center justify-center p-4 rounded-2xl bg-white text-slate-900 shadow-2xl">
-          <img src="${qrUrl}" alt="Mã VietQR" class="w-full max-w-[240px] rounded-lg" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrUrl)}';">
-          <div class="text-[11px] text-slate-600 font-medium text-center mt-2 flex items-center gap-1">
-            <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-            Tự động điền số tiền và nội dung chuyển
+        <!-- QR Code Area -->
+        <div class="flex flex-col items-center justify-center p-5 rounded-2xl bg-white text-slate-900 shadow-2xl relative border-2 ${
+          isMomo ? 'border-pink-500' : 'border-amber-500'
+        }">
+          <div class="relative">
+            <img src="${isMomo ? momoQrUrl : bankQrUrl}" alt="Mã QR Thanh Toán" class="w-full max-w-[230px] rounded-lg">
+            ${isMomo ? `
+              <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div class="w-10 h-10 rounded-full bg-pink-600 text-white flex items-center justify-center font-black text-sm shadow-lg border-2 border-white">
+                  M
+                </div>
+              </div>
+            ` : ''}
           </div>
+
+          <div class="text-[11px] font-bold text-center mt-3 flex items-center gap-1.5 ${isMomo ? 'text-pink-600' : 'text-slate-700'}">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            ${isMomo ? 'Quét bằng app MoMo tự điền số tiền' : 'Quét bằng mọi ứng dụng ngân hàng'}
+          </div>
+
+          ${isMomo ? `
+            <a href="${MOMO_CONFIG.deepLink}" target="_blank" class="mt-2 text-xs font-bold text-pink-600 hover:text-pink-700 underline flex items-center gap-1">
+              <span>Bấm vào đây để mở App MoMo</span> &rarr;
+            </a>
+          ` : ''}
         </div>
 
-        <!-- Bank Details -->
+        <!-- Details Info -->
         <div class="space-y-3">
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-            <div class="text-[11px] text-slate-500">Ngân hàng:</div>
-            <div class="text-sm font-bold text-slate-200">${BANK_CONFIG.bankName}</div>
-          </div>
+          ${isMomo ? `
+            <!-- MoMo Details -->
+            <div class="p-3 rounded-xl bg-pink-950/30 border border-pink-500/30 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] text-pink-300">Ví điện tử MoMo:</div>
+                <div class="text-lg font-black text-pink-400 font-mono tracking-wider">${MOMO_CONFIG.phone}</div>
+              </div>
+              <button onclick="copyText('${MOMO_CONFIG.phone}', 'Đã copy số điện thoại MoMo: ${MOMO_CONFIG.phone}!')" class="px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs rounded-lg transition">
+                Copy SĐT
+              </button>
+            </div>
 
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="text-[11px] text-slate-500">Tên người nhận MoMo:</div>
+              <div class="text-sm font-bold text-slate-200">${MOMO_CONFIG.name}</div>
+            </div>
+          ` : `
+            <!-- Bank Details -->
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="text-[11px] text-slate-500">Ngân hàng:</div>
+              <div class="text-sm font-bold text-slate-200">${BANK_CONFIG.bankName}</div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] text-slate-500">Số tài khoản:</div>
+                <div class="text-base font-extrabold text-amber-400 font-mono">${BANK_CONFIG.accountNo}</div>
+              </div>
+              <button onclick="copyText('${BANK_CONFIG.accountNo}', 'Đã copy STK ngân hàng!')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">Copy</button>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="text-[11px] text-slate-500">Chủ tài khoản:</div>
+              <div class="text-sm font-bold text-slate-200">${BANK_CONFIG.accountName}</div>
+            </div>
+          `}
+
+          <!-- Amount -->
           <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
             <div>
-              <div class="text-[11px] text-slate-500">Số tài khoản:</div>
-              <div class="text-base font-extrabold text-amber-400 font-mono" id="copyAccNo">${BANK_CONFIG.accountNo}</div>
+              <div class="text-[11px] text-slate-500">Số tiền thanh toán:</div>
+              <div class="text-xl font-black text-emerald-400 font-mono">${formatVnd(amount)}</div>
             </div>
-            <button onclick="copyText('${BANK_CONFIG.accountNo}', 'Đã copy STK!')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">Copy</button>
+            <button onclick="copyText('${amount}', 'Đã copy số tiền!')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">Copy Tiền</button>
           </div>
 
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-            <div class="text-[11px] text-slate-500">Chủ tài khoản:</div>
-            <div class="text-sm font-bold text-slate-200">${BANK_CONFIG.accountName}</div>
-          </div>
-
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-            <div>
-              <div class="text-[11px] text-slate-500">Số tiền:</div>
-              <div class="text-lg font-black text-emerald-400 font-mono">${formatVnd(amount)}</div>
-            </div>
-            <button onclick="copyText('${amount}', 'Đã copy số tiền!')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">Copy</button>
-          </div>
-
+          <!-- Memo -->
           <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
             <div>
-              <div class="text-[11px] text-amber-400">Nội dung chuyển khoản (bắt buộc):</div>
-              <div class="text-sm font-mono font-black text-amber-300" id="copyMemo">${memo}</div>
+              <div class="text-[11px] text-amber-400 font-semibold">Lời nhắn chuyển khoản (bắt buộc):</div>
+              <div class="text-sm font-mono font-black text-amber-300">${memo}</div>
             </div>
-            <button onclick="copyText('${memo}', 'Đã copy cú pháp!')" class="px-3 py-1 bg-amber-500 text-slate-950 font-bold text-xs rounded-lg transition">Copy</button>
+            <button onclick="copyText('${memo}', 'Đã copy cú pháp lời nhắn!')" class="px-3 py-1 bg-amber-500 text-slate-950 font-bold text-xs rounded-lg transition">Copy</button>
           </div>
         </div>
       </div>
 
+      <!-- Action Buttons Footer -->
       <div class="mt-6 pt-4 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3">
         <div class="text-xs text-slate-400 text-center md:text-left">
-          Sau khi chuyển khoản, bạn sẽ nhận link kích hoạt tài liệu & vào nhóm hỗ trợ qua Zalo ngay!
+          Sau khi chuyển khoản qua MoMo <strong>0336779222</strong>, vui lòng bấm nút xác nhận để nhận link Zoom và tài liệu.
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
-          <a href="https://zalo.me" target="_blank" class="flex-1 md:flex-initial text-center px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition">
+          <a href="https://zalo.me/0336779222" target="_blank" class="flex-1 md:flex-initial text-center px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.34 5L2 22l5.24-1.31C8.68 21.49 10.29 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
-            Nhắn Zalo xác nhận
+            Nhắn Zalo 0336779222
           </a>
-          <button onclick="confirmPaymentSuccess()" class="flex-1 md:flex-initial px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition">
+          <button onclick="confirmPaymentSuccess()" class="flex-1 md:flex-initial px-5 py-2.5 rounded-xl ${
+            isMomo ? 'bg-pink-600 hover:bg-pink-500 text-white' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+          } font-black text-xs transition">
             Tôi đã chuyển khoản ✓
           </button>
         </div>
       </div>
     </div>
   `;
+}
 
-  modal.classList.add('active');
+function switchPaymentTab(tab, amount, memo) {
+  state.activePaymentTab = tab;
+  renderPaymentModalContent(amount, memo);
 }
 
 function closePaymentModal() {
@@ -845,12 +1008,12 @@ function closePaymentModal() {
 }
 
 function confirmPaymentSuccess() {
-  showToast('Cảm ơn bạn! Hệ thống đã ghi nhận đơn hàng. Đang chuyển hướng...');
+  showToast('Cảm ơn bạn! Đã ghi nhận thanh toán qua MoMo 0336779222. Đang kết nối...');
   setTimeout(() => {
     closePaymentModal();
     closeCartDrawer();
     clearCart();
-    alert('Đăng ký thành công! Vui lòng kiểm tra Zalo/Email để nhận thư mời vào nhóm lớp Zoom và kho Skill.');
+    alert('Thanh toán thành công qua MoMo 0336779222! Hệ thống sẽ gửi link Zoom và toàn bộ kho tài nguyên vào Zalo/Email của bạn ngay bây giờ.');
   }, 1200);
 }
 
@@ -885,59 +1048,14 @@ function initRegistrationForm() {
     const cleanPhone = phone.replace(/[^0-9]/g, '').slice(-4) || 'VIP';
     const memo = `CLAUDE ${cleanPhone}`;
 
-    // Store in localStorage for lead tracking
     try {
       const leads = JSON.parse(localStorage.getItem('claude_course_leads') || '[]');
       leads.push({ name, phone, email, task, packageType, date: new Date().toISOString() });
       localStorage.setItem('claude_course_leads', JSON.stringify(leads));
     } catch (err) {}
 
-    openPaymentModal(amount, memo);
+    openPaymentModal(amount, memo, 'momo');
   });
-}
-
-// Interactive Terminal Simulator
-function initInteractiveTerminal() {
-  const terminalEl = document.getElementById('interactiveTerminalOutput');
-  if (!terminalEl) return;
-
-  const lines = [
-    { text: '$ claude "Tự động phân tích video xe cổ, cắt nhịp theo BPM và tạo dự án CapCut"', delay: 600, color: 'text-amber-400' },
-    { text: '→ Đang đọc cấu hình CLAUDE.md và nạp trí nhớ dự án...', delay: 1400, color: 'text-slate-400' },
-    { text: '✓ Hook [pre_tool_call]: Kiểm tra quyền ghi đè thư mục -> HỢP LỆ', delay: 2200, color: 'text-emerald-400' },
-    { text: '⚡ Kích hoạt Skill: capcut-draft-generator + cinematic-color-grading', delay: 3000, color: 'text-indigo-400' },
-    { text: '🎙️ vieNeu-tts: Sinh giọng đọc tiếng Việt Studio 48kHz không robot...', delay: 3800, color: 'text-cyan-400' },
-    { text: '🤖 Subagent [Reviewer]: Kiểm tra vùng an toàn 9:16 và sync nhạc... ĐẠT 100%', delay: 4600, color: 'text-emerald-400' },
-    { text: '★ HOÀN THÀNH: File draft_content.json đã xuất vào CapCut Desktop!', delay: 5400, color: 'text-amber-300 font-bold' }
-  ];
-
-  let currentLine = 0;
-  function printNext() {
-    if (currentLine < lines.length) {
-      const line = lines[currentLine];
-      const p = document.createElement('div');
-      p.className = `font-mono text-xs ${line.color} transition-all duration-300 opacity-0 transform translate-x-2`;
-      p.innerText = line.text;
-      terminalEl.appendChild(p);
-
-      requestAnimationFrame(() => {
-        p.classList.remove('opacity-0', 'translate-x-2');
-      });
-
-      terminalEl.scrollTop = terminalEl.scrollHeight;
-      currentLine++;
-      setTimeout(printNext, 900);
-    } else {
-      // Loop after 6s
-      setTimeout(() => {
-        terminalEl.innerHTML = '';
-        currentLine = 0;
-        printNext();
-      }, 6000);
-    }
-  }
-
-  printNext();
 }
 
 // Helpers
